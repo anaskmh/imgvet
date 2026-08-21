@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>imgvet report</title>
+<style>
+  :root {
+    --bg: #f6f8fa; --card: #ffffff; --text: #1f2328; --muted: #656d76;
+    --border: #d1d9e0; --accent: #0969da;
+    --critical: #cf222e; --high: #bc4c00; --medium: #9a6700; --low: #57606a; --unknown: #8c959f;
+    --ok: #1a7f37; --warn: #9a6700; --error: #cf222e; --info: #0969da;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0d1117; --card: #161b22; --text: #e6edf3; --muted: #8d96a0;
+      --border: #30363d; --accent: #4493f8;
+      --critical: #ff7b72; --high: #f0883e; --medium: #d29922; --low: #8d96a0; --unknown: #6e7681;
+      --ok: #3fb950; --warn: #d29922; --error: #ff7b72; --info: #4493f8;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text);
+    font: 14px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 24px 16px 64px; }
+  h1 { font-size: 20px; margin: 0 0 4px; }
+  h2 { font-size: 16px; margin: 32px 0 12px; }
+  .muted { color: var(--muted); }
+  .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; }
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-top: 16px; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; }
+  .card .v { font-size: 22px; font-weight: 600; }
+  .card .l { color: var(--muted); font-size: 12px; }
+  table { width: 100%; border-collapse: collapse; background: var(--card);
+    border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+  th, td { text-align: left; padding: 7px 12px; border-top: 1px solid var(--border); }
+  thead th { border-top: none; background: color-mix(in srgb, var(--card) 70%, var(--bg));
+    font-size: 12px; color: var(--muted); cursor: pointer; user-select: none; white-space: nowrap; }
+  thead th:hover { color: var(--text); }
+  .sev { display: inline-block; padding: 1px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; color: #fff; }
+  .sev-CRITICAL { background: var(--critical); } .sev-HIGH { background: var(--high); }
+  .sev-MEDIUM { background: var(--medium); } .sev-LOW { background: var(--low); }
+  .sev-UNKNOWN { background: var(--unknown); }
+  .bar-row { display: grid; grid-template-columns: 28px 90px 1fr; gap: 10px; align-items: center; padding: 4px 0; }
+  .bar-track { position: relative; height: 18px; background: color-mix(in srgb, var(--card) 60%, var(--bg));
+    border-radius: 4px; overflow: hidden; }
+  .bar { position: absolute; inset: 0 auto 0 0; background: var(--accent); opacity: .75; border-radius: 4px; }
+  .bar.waste { background: var(--critical); opacity: .9; }
+  .bar-cmd { grid-column: 3; color: var(--muted); font-size: 11px; overflow: hidden;
+    text-overflow: ellipsis; white-space: nowrap; margin-top: -2px; }
+  .filters { margin: 0 0 10px; display: flex; gap: 6px; flex-wrap: wrap; }
+  .filters button { background: var(--card); color: var(--text); border: 1px solid var(--border);
+    border-radius: 14px; padding: 3px 12px; font-size: 12px; cursor: pointer; }
+  .filters button.active { border-color: var(--accent); color: var(--accent); font-weight: 600; }
+  .finding { background: var(--card); border: 1px solid var(--border); border-radius: 8px;
+    padding: 10px 14px; margin-bottom: 8px; }
+  .finding .rid { font-weight: 600; margin-right: 8px; }
+  .flag { display: inline-block; min-width: 48px; text-align: center; padding: 1px 8px;
+    border-radius: 10px; font-size: 11px; font-weight: 600; color: #fff; margin-right: 8px; }
+  .flag-error { background: var(--error); } .flag-warn { background: var(--warn); } .flag-info { background: var(--info); }
+  .score { font-weight: 700; }
+  .score.good { color: var(--ok); } .score.mid { color: var(--warn); } .score.bad { color: var(--error); }
+  .empty { color: var(--muted); font-style: italic; padding: 8px 2px; }
+  details { margin-top: 6px; } summary { cursor: pointer; color: var(--muted); font-size: 12px; }
+  footer { margin-top: 40px; color: var(--muted); font-size: 12px; }
+  a { color: var(--accent); text-decoration: none; } a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1 id="img-ref">imgvet report</h1>
+  <div class="muted mono" id="img-digest"></div>
+  <div class="muted" id="meta-line"></div>
+
+  <div class="cards" id="cards"></div>
+
+  <h2>Layers</h2>
+  <div class="card" id="layers"></div>
+
+  <h2>Vulnerabilities <span class="muted" id="vuln-count"></span></h2>
+  <div class="filters" id="sev-filters"></div>
+  <div id="vulns"></div>
+
+  <h2>Top wasted files</h2>
+  <div id="wasted"></div>
+
+  <h2>Findings</h2>
+  <div id="findings"></div>
+
+  <h2>Base image recommendations</h2>
+  <div id="recs"></div>
+
+  <footer id="footer"></footer>
+</div>
+
+<script id="report-data" type="application/json">__REPORT_JSON__</script>
+<script>
+(function () {
+  const R = JSON.parse(document.getElementById('report-data').textContent);
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const human = (n) => {
+    if (n == null) return '-';
+    const u = ['B','KB','MB','GB','TB']; let i = 0;
+    while (n >= 1024 && i < u.length - 1) { n /= 1024; i++; }
+    return (i === 0 ? n : n.toFixed(1)) + ' ' + u[i];
+  };
+
+  // Header
+  $('img-ref').textContent = R.image.ref;
+  $('img-digest').textContent = R.image.digest;
+  const db = R.tool.vulnDBUpdated ? `, vuln DB ${new Date(R.tool.vulnDBUpdated).toISOString().slice(0,10)}` : '';
+  $('meta-line').textContent =
+    `${R.image.platform} · scanned ${new Date(R.generatedAt).toLocaleString()} · ` +
+    `imgvet ${R.tool.version}${R.tool.scanner ? ` · ${R.tool.scanner} ${R.tool.scannerVersion || ''}${db}` : ''}`;
+
+  // Summary cards
+  const score = R.summary.efficiencyScore;
+  const scoreCls = score >= 90 ? 'good' : score >= 70 ? 'mid' : 'bad';
+  const vc = R.summary.vulnCounts || {};
+  const sevs = ['CRITICAL','HIGH','MEDIUM','LOW','UNKNOWN'];
+  const cards = [
+    { v: human(R.image.totalSize), l: 'compressed size' },
+    { v: `<span class="score ${scoreCls}">${score.toFixed(1)}</span>`, l: 'efficiency score' },
+    { v: human(R.summary.wastedBytes), l: 'wasted bytes' },
+    { v: R.layers.length, l: 'layers' },
+  ];
+  for (const s of sevs) if (vc[s]) cards.push({ v: `<span class="sev sev-${s}">${vc[s]}</span>`, l: s.toLowerCase() + ' vulns' });
+  $('cards').innerHTML = cards.map(c => `<div class="card"><div class="v">${c.v}</div><div class="l">${esc(c.l)}</div></div>`).join('');
+
+  // Layer bars
+  const maxSize = Math.max(1, ...R.layers.map(l => l.size));
+  $('layers').innerHTML = R.layers.map(l => {
+    const w = (100 * l.size / maxSize).toFixed(2);
+    const wastePct = l.size ? Math.min(100, 100 * l.wastedBytes / maxSize).toFixed(2) : 0;
+    return `<div class="bar-row">
+      <div class="muted">${l.index}</div>
+      <div class="mono">${human(l.size)}</div>
+      <div class="bar-track"><div class="bar" style="width:${w}%"></div>${l.wastedBytes ? `<div class="bar waste" style="width:${wastePct}%"></div>` : ''}</div>
+      <div class="bar-cmd" title="${esc(l.command)}">${esc(l.command || '(base layer)')} · ${l.fileCount} files${l.wastedBytes ? ` · ${human(l.wastedBytes)} wasted` : ''}</div>
+    </div>`;
+  }).join('');
+
+  // Vulnerabilities: sortable + severity filter
+  const vulns = R.vulnerabilities || [];
+  $('vuln-count').textContent = vulns.length ? `(${vulns.length})` : '';
+  let sevFilter = null, sortKey = null, sortAsc = true;
+  const sevRank = s => { const i = sevs.indexOf(s); return i < 0 ? sevs.length : i; };
+
+  function renderFilters() {
+    const counts = {};
+    vulns.forEach(v => counts[v.severity] = (counts[v.severity] || 0) + 1);
+    $('sev-filters').innerHTML = [null, ...sevs.filter(s => counts[s])].map(s =>
+      `<button data-sev="${s ?? ''}" class="${sevFilter === s ? 'active' : ''}">${s ? `${s} (${counts[s]})` : `All (${vulns.length})`}</button>`
+    ).join('');
+    $('sev-filters').querySelectorAll('button').forEach(b =>
+      b.onclick = () => { sevFilter = b.dataset.sev || null; renderFilters(); renderVulns(); });
+  }
+
+  function renderVulns() {
+    if (!vulns.length) {
+      $('vulns').innerHTML = `<div class="empty">${R.tool.scanner ? 'No vulnerabilities found.' : 'Vulnerability scanning was skipped.'}</div>`;
+      return;
+    }
+    let rows = sevFilter ? vulns.filter(v => v.severity === sevFilter) : [...vulns];
+    if (sortKey) rows.sort((a, b) => {
+      const av = sortKey === 'severity' ? sevRank(a.severity) : String(a[sortKey] ?? '');
+      const bv = sortKey === 'severity' ? sevRank(b.severity) : String(b[sortKey] ?? '');
+      return (av < bv ? -1 : av > bv ? 1 : 0) * (sortAsc ? 1 : -1);
+    });
+    const cols = [['severity','Severity'],['id','ID'],['package','Package'],['installedVersion','Installed'],['fixedVersion','Fixed in']];
+    $('vulns').innerHTML = `<table><thead><tr>${cols.map(([k, t]) =>
+      `<th data-k="${k}">${t}${sortKey === k ? (sortAsc ? ' ↑' : ' ↓') : ''}</th>`).join('')}</tr></thead><tbody>${
+      rows.map(v => `<tr>
+        <td><span class="sev sev-${esc(v.severity)}">${esc(v.severity)}</span></td>
+        <td>${v.url ? `<a href="${esc(v.url)}" rel="noopener">${esc(v.id)}</a>` : esc(v.id)}</td>
+        <td>${esc(v.package)}</td><td class="mono">${esc(v.installedVersion)}</td>
+        <td class="mono">${esc(v.fixedVersion || '-')}</td></tr>`).join('')}</tbody></table>`;
+    $('vulns').querySelectorAll('th').forEach(th => th.onclick = () => {
+      const k = th.dataset.k;
+      if (sortKey === k) sortAsc = !sortAsc; else { sortKey = k; sortAsc = true; }
+      renderVulns();
+    });
+  }
+  renderFilters(); renderVulns();
+
+  // Wasted files
+  const wf = (R.optimization && R.optimization.wastedFiles) || [];
+  $('wasted').innerHTML = wf.length
+    ? `<table><thead><tr><th>Size</th><th>Reason</th><th>Path</th><th>Layers</th></tr></thead><tbody>${
+        wf.map(f => `<tr><td class="mono">${human(f.bytes)}</td><td>${esc(f.reason)}</td>
+          <td class="mono">${esc(f.path)}</td><td class="mono">${(f.layers || []).join(', ')}</td></tr>`).join('')}</tbody></table>`
+    : '<div class="empty">No wasted files detected.</div>';
+
+  // Findings
+  const findings = (R.optimization && R.optimization.findings) || [];
+  $('findings').innerHTML = findings.length
+    ? findings.map(f => `<div class="finding">
+        <span class="flag flag-${esc(f.severity)}">${esc(f.severity)}</span>
+        <span class="rid">${esc(f.ruleId)}</span>${esc(f.message)}
+        ${f.file ? `<div class="muted mono">${esc(f.file)}:${f.line}</div>` : ''}</div>`).join('')
+    : '<div class="empty">No findings.</div>';
+
+  // Recommendations
+  const recs = (R.optimization && R.optimization.baseImageRecommendations) || [];
+  $('recs').innerHTML = recs.length
+    ? recs.map(r => `<div class="finding"><b class="mono">${esc(r.current)}</b> → <b class="mono">${esc(r.suggested)}</b>
+        <div class="muted">${esc(r.rationale)}</div></div>`).join('')
+    : '<div class="empty">No recommendations — the base image already looks lean.</div>';
+
+  $('footer').textContent = `Generated by imgvet ${R.tool.version} · schema v${R.schemaVersion}`;
+})();
+</script>
+</body>
+</html>

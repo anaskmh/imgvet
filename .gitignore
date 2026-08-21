@@ -1,0 +1,6 @@
+/imgvet
+/dist/
+*.test
+coverage.out
+report.json
+report.html

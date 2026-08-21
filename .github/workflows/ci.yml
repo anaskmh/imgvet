@@ -1,0 +1,67 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - name: Vet
+        run: go vet ./...
+      - name: Test
+        run: go test -race ./...
+      - name: Build
+        run: go build ./...
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - uses: golangci/golangci-lint-action@v6
+        with:
+          version: latest
+
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - name: Install trivy
+        uses: aquasecurity/setup-trivy@v0.2.0
+      - name: Build imgvet
+        run: go build -o imgvet .
+      - name: Build intentionally bloated test image
+        run: docker build -t imgvet-bloated:test testdata/bloated/
+      - name: Scan bloated image and assert findings
+        run: |
+          ./imgvet scan imgvet-bloated:test \
+            --dockerfile testdata/bloated/Dockerfile \
+            --format json -o report.json
+          python3 - <<'EOF'
+          import json, sys
+          r = json.load(open("report.json"))
+          opt = r["optimization"]
+          assert opt["wastedBytes"] > 20_000_000, f"expected >20MB wasted, got {opt['wastedBytes']}"
+          rules = {f["ruleId"] for f in opt.get("findings", [])}
+          for want in ("IV-DF-002", "IV-DF-007", "IV-DF-008"):
+              assert want in rules, f"missing finding {want}, got {rules}"
+          assert opt["efficiencyScore"] < 60, f"score should be low, got {opt['efficiencyScore']}"
+          print("e2e ok: wasted", opt["wastedBytes"], "score", opt["efficiencyScore"], "rules", sorted(rules))
+          EOF
+      - name: HTML render smoke test
+        run: ./imgvet render report.json --format html -o report.html && test -s report.html
