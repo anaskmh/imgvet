@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/greentruth/imgvet/pkg/report"
+	"github.com/anaskmh/imgvet/pkg/report"
 )
 
 // supportedSchemaVersion is the trivy JSON schema this adapter understands.

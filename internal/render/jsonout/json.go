@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"io"
 
-	"github.com/greentruth/imgvet/pkg/report"
+	"github.com/anaskmh/imgvet/pkg/report"
 )
 
 // Render writes the report as indented JSON.

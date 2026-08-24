@@ -13,14 +13,14 @@ import (
 	v1 "github.com/google/go-containerregistry/pkg/v1"
 	"golang.org/x/sync/errgroup"
 
-	"github.com/greentruth/imgvet/internal/analyze/dockerfile"
-	"github.com/greentruth/imgvet/internal/analyze/filetree"
-	"github.com/greentruth/imgvet/internal/analyze/layers"
-	"github.com/greentruth/imgvet/internal/analyze/recommend"
-	"github.com/greentruth/imgvet/internal/image"
-	"github.com/greentruth/imgvet/internal/scan"
-	"github.com/greentruth/imgvet/internal/scan/trivy"
-	"github.com/greentruth/imgvet/pkg/report"
+	"github.com/anaskmh/imgvet/internal/analyze/dockerfile"
+	"github.com/anaskmh/imgvet/internal/analyze/filetree"
+	"github.com/anaskmh/imgvet/internal/analyze/layers"
+	"github.com/anaskmh/imgvet/internal/analyze/recommend"
+	"github.com/anaskmh/imgvet/internal/image"
+	"github.com/anaskmh/imgvet/internal/scan"
+	"github.com/anaskmh/imgvet/internal/scan/trivy"
+	"github.com/anaskmh/imgvet/pkg/report"
 )
 
 // Options configures a single scan run.

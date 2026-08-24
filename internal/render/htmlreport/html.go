@@ -10,7 +10,7 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/greentruth/imgvet/pkg/report"
+	"github.com/anaskmh/imgvet/pkg/report"
 )
 
 //go:embed assets/template.html

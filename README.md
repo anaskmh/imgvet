@@ -40,7 +40,7 @@ SUMMARY
 ## Install
 
 ```sh
-go install github.com/greentruth/imgvet@latest
+go install github.com/anaskmh/imgvet@latest
 ```
 
 Or grab a binary from [Releases](../../releases). For vulnerability scanning, also install [trivy](https://trivy.dev/latest/getting-started/installation/) (`brew install trivy`) — without it, imgvet still runs all optimization analysis.

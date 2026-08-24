@@ -10,12 +10,12 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/greentruth/imgvet/internal/engine"
-	"github.com/greentruth/imgvet/internal/image"
-	"github.com/greentruth/imgvet/internal/render/htmlreport"
-	"github.com/greentruth/imgvet/internal/render/jsonout"
-	"github.com/greentruth/imgvet/internal/render/table"
-	"github.com/greentruth/imgvet/pkg/report"
+	"github.com/anaskmh/imgvet/internal/engine"
+	"github.com/anaskmh/imgvet/internal/image"
+	"github.com/anaskmh/imgvet/internal/render/htmlreport"
+	"github.com/anaskmh/imgvet/internal/render/jsonout"
+	"github.com/anaskmh/imgvet/internal/render/table"
+	"github.com/anaskmh/imgvet/pkg/report"
 )
 
 // policyError signals a CI gate failure (exit code 2, not 1).

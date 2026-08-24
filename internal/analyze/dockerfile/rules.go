@@ -7,7 +7,7 @@ import (
 
 	"github.com/moby/buildkit/frontend/dockerfile/instructions"
 
-	"github.com/greentruth/imgvet/pkg/report"
+	"github.com/anaskmh/imgvet/pkg/report"
 )
 
 // rules are run in order; each returns zero or more findings.

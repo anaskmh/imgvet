@@ -7,7 +7,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/greentruth/imgvet/pkg/report"
+	"github.com/anaskmh/imgvet/pkg/report"
 )
 
 // Input is what a scanner backend receives. The image has already been

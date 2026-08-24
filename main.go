@@ -3,7 +3,7 @@ package main
 import (
 	"os"
 
-	"github.com/greentruth/imgvet/internal/cli"
+	"github.com/anaskmh/imgvet/internal/cli"
 )
 
 func main() {

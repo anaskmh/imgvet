@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/greentruth/imgvet/pkg/report"
+	"github.com/anaskmh/imgvet/pkg/report"
 )
 
 func TestNodeImageGetsSlimRec(t *testing.T) {

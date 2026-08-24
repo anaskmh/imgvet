@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/greentruth/imgvet/pkg/report"
+	"github.com/anaskmh/imgvet/pkg/report"
 )
 
 // Recommend returns base-image suggestions for the scanned image.

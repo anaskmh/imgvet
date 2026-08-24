@@ -11,8 +11,8 @@ import (
 	"os/exec"
 	"time"
 
-	"github.com/greentruth/imgvet/internal/scan"
-	"github.com/greentruth/imgvet/pkg/report"
+	"github.com/anaskmh/imgvet/internal/scan"
+	"github.com/anaskmh/imgvet/pkg/report"
 )
 
 const installHint = "trivy not found on PATH. Install it (https://trivy.dev/latest/getting-started/installation/):\n" +

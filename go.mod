@@ -1,4 +1,4 @@
-module github.com/greentruth/imgvet
+module github.com/anaskmh/imgvet
 
 go 1.27.0
 

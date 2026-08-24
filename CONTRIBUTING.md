@@ -7,7 +7,7 @@ Thanks for your interest! Contributions of all kinds are welcome — bug reports
 Requirements: Go 1.24+, Docker (for e2e and daemon-mode scans), and optionally [trivy](https://trivy.dev) for vulnerability scanning.
 
 ```sh
-git clone https://github.com/greentruth/imgvet && cd imgvet
+git clone https://github.com/anaskmh/imgvet && cd imgvet
 go build -o imgvet .
 go test ./...
 ./imgvet scan alpine:3.20

@@ -7,10 +7,10 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/greentruth/imgvet/internal/render/htmlreport"
-	"github.com/greentruth/imgvet/internal/render/jsonout"
-	"github.com/greentruth/imgvet/internal/render/table"
-	"github.com/greentruth/imgvet/pkg/report"
+	"github.com/anaskmh/imgvet/internal/render/htmlreport"
+	"github.com/anaskmh/imgvet/internal/render/jsonout"
+	"github.com/anaskmh/imgvet/internal/render/table"
+	"github.com/anaskmh/imgvet/pkg/report"
 )
 
 func newRenderCmd() *cobra.Command {
